@@ -371,6 +371,7 @@ impl<'a, 'tcx> ConvCtxt<'a, 'tcx> {
         let mut into = vec![rty::GenericArg::Ty(bounded_ty.clone())];
         self.conv_generic_args_into(env, args, &mut into)?;
         self.fill_generic_args_defaults(trait_id, &mut into)?;
+        println!("conv_trait_bound:\n {:?}\n {:?}\n {:?}\n", bounded_ty, trait_id, into);
         let trait_ref = rty::TraitRef { def_id: trait_id, args: into.into() };
         let pred = rty::TraitPredicate { trait_ref };
         let vars = params
@@ -869,6 +870,7 @@ impl<'a, 'tcx> ConvCtxt<'a, 'tcx> {
         let generics = self.genv.generics_of(def_id)?;
         for param in generics.params.iter().skip(into.len()) {
             if let rty::GenericParamDefKind::Type { has_default } = param.kind {
+                println!("fill_generic_args_defaults:\n {:?}\n {:?}\n {:?}\n {:?}\n {:?}\n", generics, into, def_id, has_default, param);
                 debug_assert!(has_default);
                 let ty = self
                     .genv

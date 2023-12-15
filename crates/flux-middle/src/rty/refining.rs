@@ -332,6 +332,7 @@ impl<'a, 'tcx> Refiner<'a, 'tcx> {
                 rty::BaseTy::Array(self.refine_ty(ty)?, len.clone())
             }
             rustc::ty::TyKind::Param(param_ty) => {
+                println!("refine_poly_ty:\n {ty:?}\n {param_ty:?}");
                 match self.param(*param_ty)?.kind {
                     rty::GenericParamDefKind::Type { .. } | rty::GenericParamDefKind::SplTy => {
                         return Ok(rty::Binder::new(rty::Ty::param(*param_ty), List::empty()));

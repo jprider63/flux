@@ -197,7 +197,9 @@ impl<'tcx> Queries<'tcx> {
         def_id: DefId,
     ) -> QueryResult<rty::Generics> {
         run_with_cache(&self.generics_of, def_id, || {
+            println!("generics_of:\n {:?}\n", def_id);
             let def_id = genv.lookup_extern(def_id).unwrap_or(def_id);
+            println!("generics_of':\n {:?}\n", def_id);
             if let Some(local_id) = def_id.as_local() {
                 (self.providers.generics_of)(genv, local_id)
             } else {
@@ -268,6 +270,7 @@ impl<'tcx> Queries<'tcx> {
             } else {
                 let generics = genv.generics_of(def_id)?;
                 let ty = genv.lower_type_of(def_id)?.skip_binder();
+                println!("queries::type_of:\n {def_id:?}\n {generics:?}\n {ty:?}\n");
                 let ty = Refiner::default(genv, &generics).refine_ty(&ty)?;
                 Ok(rty::EarlyBinder(rty::Binder::with_sort(ty, rty::Sort::unit())))
             }

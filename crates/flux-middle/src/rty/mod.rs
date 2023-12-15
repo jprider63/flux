@@ -604,6 +604,8 @@ impl GeneratorObligPredicate {
 impl Generics {
     pub fn param_at(&self, param_index: usize, genv: &GlobalEnv) -> QueryResult<GenericParamDef> {
         if let Some(index) = param_index.checked_sub(self.parent_count) {
+            // assert!(index < self.params.len(), "{} {} {:?}", param_index, self.parent_count, self);
+            println!("param_at:\n {}\n {}\n {:?}\n", param_index, self.parent_count, self);
             Ok(self.params[index].clone())
         } else {
             genv.generics_of(self.parent.expect("parent_count > 0 but no parent?"))?
