@@ -264,13 +264,16 @@ impl<'tcx> Queries<'tcx> {
     ) -> QueryResult<rty::EarlyBinder<rty::PolyTy>> {
         run_with_cache(&self.type_of, def_id, || {
             if let Some(local_id) = def_id.as_local() {
+                println!("queries::type_of:\n {def_id:?}\n local_id:{local_id:?}\n");
                 (self.providers.type_of)(genv, local_id)
             } else if let Some(ty) = genv.cstore().type_of(def_id) {
+                println!("queries::type_of:\n {def_id:?}\n ty:{ty:?}\n");
                 Ok(ty.clone())
             } else {
-                let generics = genv.generics_of(def_id)?;
+                let parent_def_id = genv.tcx.parent(def_id);
+                let generics = genv.generics_of(parent_def_id)?;
                 let ty = genv.lower_type_of(def_id)?.skip_binder();
-                println!("queries::type_of:\n {def_id:?}\n {generics:?}\n {ty:?}\n");
+                println!("queries::type_of:\n {def_id:?}\n {parent_def_id:?}\n generics:{generics:?}\n ty:{ty:?}\n");
                 let ty = Refiner::default(genv, &generics).refine_ty(&ty)?;
                 Ok(rty::EarlyBinder(rty::Binder::with_sort(ty, rty::Sort::unit())))
             }
