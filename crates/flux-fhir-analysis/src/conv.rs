@@ -370,8 +370,8 @@ impl<'a, 'tcx> ConvCtxt<'a, 'tcx> {
     ) -> QueryResult<()> {
         let mut into = vec![rty::GenericArg::Ty(bounded_ty.clone())];
         self.conv_generic_args_into(env, args, &mut into)?;
-        self.fill_generic_args_defaults(trait_id, &mut into)?;
-        println!("conv_trait_bound:\n {:?}\n {:?}\n {:?}\n", bounded_ty, trait_id, into);
+        println!("conv_trait_bound:\n bounded_ty: {:?}\n trait_id: {:?}\n args: {args:?}\n into: {:?}\n", bounded_ty, trait_id, into);
+        self.fill_generic_args_defaults(trait_id, args, &mut into)?;
         let trait_ref = rty::TraitRef { def_id: trait_id, args: into.into() };
         let pred = rty::TraitPredicate { trait_ref };
         let vars = params
@@ -839,7 +839,7 @@ impl<'a, 'tcx> ConvCtxt<'a, 'tcx> {
     ) -> QueryResult<Vec<rty::GenericArg>> {
         let mut into = vec![];
         self.conv_generic_args_into(env, args, &mut into)?;
-        self.fill_generic_args_defaults(def_id, &mut into)?;
+        self.fill_generic_args_defaults(def_id, args, &mut into)?;
         Ok(into)
     }
 
@@ -865,19 +865,24 @@ impl<'a, 'tcx> ConvCtxt<'a, 'tcx> {
     fn fill_generic_args_defaults(
         &self,
         def_id: DefId,
+        args: &[fhir::GenericArg],
         into: &mut Vec<rty::GenericArg>,
     ) -> QueryResult<()> {
         let generics = self.genv.generics_of(def_id)?;
         for param in generics.params.iter().skip(into.len()) {
             if let rty::GenericParamDefKind::Type { has_default } = param.kind {
-                println!("fill_generic_args_defaults:\n {:?}\n {:?}\n {:?}\n {:?}\n {:?}\n", generics, into, def_id, has_default, param);
+                // println!("fill_generic_args_defaults:\n {:?}\n {:?}\n {:?}\n {:?}\n {:?}\n", generics, into, def_id, has_default, param);
                 debug_assert!(has_default);
+                println!("fill_generic_args_defaults:\n {:?}\n {args:?}\n", into);
                 let ty = self
                     .genv
-                    .type_of(param.def_id)?
-                    .instantiate(&[], &[])
+                    .type_of(param.def_id)?;
+                println!("fill_generic_args_defaults':\n {:?}\n", ty);
+                let ty = ty
+                    .instantiate(&into, &[])
                     .into_ty();
                 into.push(rty::GenericArg::Ty(ty));
+                println!("fill_generic_args_defaults'':\n {:?}\n", into);
             } else {
                 bug!("unexpected generic param: {param:?}");
             }

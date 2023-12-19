@@ -210,7 +210,7 @@ impl<T: Types> fmt::Display for Task<T> {
             writeln!(f, "{qualif}")?;
         }
 
-        writeln!(f, "(data Pair 2 = [| Pair {{ fst: @(0), snd: @(1) }} ])")?;
+        writeln!(f, "(data Pair 2 = [| Pair {{ fst: @(0), snd: @(1) }} ] | [| X {x : @(0)}])")?;
         writeln!(f, "(data Unit 0 = [| Unit {{ }}])")?;
 
         for cinfo in &self.constants {

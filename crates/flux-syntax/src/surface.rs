@@ -24,6 +24,7 @@ impl NodeId {
 
 #[derive(Debug)]
 pub struct SortDecl {
+    // Opaque sort
     pub name: Ident,
 }
 
@@ -32,6 +33,7 @@ pub enum Item {
     Qualifier(Qualifier),
     FuncDef(FuncDef),
     SortDecl(SortDecl),
+    // NonOpaqueSortDecl(...),
 }
 
 #[derive(Debug)]
